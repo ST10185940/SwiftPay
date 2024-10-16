@@ -16,10 +16,10 @@ import slowDown from "express-slow-down";
 
 import expressSSL from "express-sslify"; // Importing Express SSLify for HTTPS redirection
 
-const PORT = 3001; // Defining the port number for the server
-const app = express(); // Creating an Express.js application
+const PORT = 3001; // defines the port number for the server
+const app = express(); // creates an Express.js application
 
-// Reading SSL/TLS certificates for HTTPS
+// Readireadsng SSL/TLS certificates for HTTPS
 const options = {
     key: fs.readFileSync('keys/privatekey.pem'),
     cert: fs.readFileSync('keys/new-cert.pem')
@@ -64,7 +64,7 @@ app.use(speedLimiter);
 // Enabling HTTPS redirection
 app.use(expressSSL.HTTPS());
 
-// Enabling CORS for cross-origin requests
+// enables CORS for cross-origin requests
 app.use(cors());
 
 // Mounting routes for customer, transaction, and bank employee operations

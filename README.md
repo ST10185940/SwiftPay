@@ -1,6 +1,6 @@
 # SwiftPay Server
 
-This server-side implementation is part of a POE Project for APDS73111, specifically designed for "SwiftPay", a secure and efficient payment processing platform. It leverages Node.js, Express.js, and MongoDB for seamless database operations.
+This server-side implementation is part of a POE Project for APDS73111 titled: "SwiftPay",and serves as a secure and efficient payment processing platform for an international bank. Its build using Node.js, Express.js, and MongoDB for database operations.
 
 ## Key Features
 
