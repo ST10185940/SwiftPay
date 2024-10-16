@@ -12,6 +12,7 @@ const router = express.Router();
 var store = new ExpressBrute.MemoryStore();
 var bruteforce = new ExpressBrute(store);
 
+import checkauth from "../checkAuth.mjs";
 
 //Login
 
@@ -47,6 +48,33 @@ router.post("login", bruteforce.prevent,[
     }catch(e){
         console.log("Loging error:", e);
         res.status(500),json({message: "Login Failed"});
+    }
+});
+
+// Verify and Forward Transaction
+
+router.post("verifyNforward", bruteforce.prevent, checkauth ,[
+    body('transactionId').trim().escape()
+] , async (req,res) => {
+
+    const sanitizedInput = matchedData(req);
+
+    transactionId = sanitizedInput.transactionId;
+
+    try{
+        const transactionCollection = await db.collection("Transactions");
+        const transaction = await transactionCollection.findOne({ _id: new ObjectId(transactionId) });
+
+        if(!transaction){
+            return res.status(404).send({message: "Transaction not found"});
+        }
+
+        await transactionCollection.updateOne({ _id: new ObjectId(transactionId) }, { $set: { swift_verified: true, status: "Processed and forwarded to SWIFT" } });
+        return res.status(200).json({message: "Transaction verified and forwarded successfully"});
+
+    }catch(e){
+        console.log("Transaction verification and forwarding error:", e);
+        res.status(500).json({message: "Transaction verification and forwarding failed"});
     }
 });
 

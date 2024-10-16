@@ -1,6 +1,6 @@
 import express from "express";
 import checkauth from "../checkAuth.mjs";
-import Transaction from "../models/Transaction.mjs";
+import { body, validationResult , matchedData } from "express-validator";
 
 import crypto from "crypto";
 
@@ -9,8 +9,24 @@ const key = crypto.randomBytes(32); // 256-bit key
 const iv = crypto.randomBytes(16);  // 128-bit I
 const router = express.Router();
 
-router.post("/pay", checkauth, async (req, res) => {
-    const { amount, currency, provider, accountNumber, swiftCode } = req.body;
+router.post("/pay", checkauth, [
+    body('amount').isNumeric(),
+    body('currency').trim().escape(),
+    body('provider').trim().escape(),
+    body('accountNumber').trim().escape(),
+    body('swiftCode').trim().escape()
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const sanitizedInput = matchedData(req);
+    const amount = sanitizedInput.amount;
+    const currency = sanitizedInput.currency;
+    const provider = sanitizedInput.provider;
+    const accountNumber = sanitizedInput.accountNumber;
+    const swiftCode = sanitizedInput.swiftCode;
 
     // Validate input using regex
     const accountNumberRegex = /^[0-9]{9,18}$/;
