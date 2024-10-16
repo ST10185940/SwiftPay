@@ -28,7 +28,7 @@ const options = {
 // Middleware for parsing URL-encoded bodies
 app.use(express.urlencoded({extended:true}));
 
-// Configuring rate limit for 10 requests within 15 minutes
+// rate limit for 10 requests within 15 minutes
 const limiter = rateLimit({
     window: 15* 60 * 1000,
     limits: 10,
@@ -36,14 +36,14 @@ const limiter = rateLimit({
     legacyHeaders: false
 });
 
-// Configuring speed limiter to slow down requests after 5 hits
+// speed limiter to slow down requests after 5 hits
 const speedLimiter = slowDown({
     window: 15 * 60 * 1000,
     delayAfter: 5,
     delayMs: (hits) => hits * 100
 });
 
-// Configuring Helmet for security headers
+// Helmet for security headers
 app.use(helmet({
     contentSecurityPolicy:{
         directives:{
