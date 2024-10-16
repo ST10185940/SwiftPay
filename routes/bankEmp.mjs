@@ -5,7 +5,7 @@ import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 
 import ExpressBrute from "express-brute";
-import {body , validationResult, matchedData} from "express-validator";
+import {body , matchedData} from "express-validator";
 
 const router = express.Router();
 

@@ -26,7 +26,7 @@ const options = {
 
 app.use(express.urlencoded({extended:true}));
 
-const limiter = ratelimit({
+const limiter = rateLimit({
     window: 15* 60 * 1000,
     limits: 10,
     standardHeaders: "draft-7",
