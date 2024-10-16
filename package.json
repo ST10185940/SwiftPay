@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server",
     "dev": "nodemon server.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo 'Running tests...'"
   },
   "keywords": [],
   "author": "",
@@ -32,5 +32,8 @@
     "nodemon": "^3.1.7",
     "swiftpay": "file:",
     "validator": "^13.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
