@@ -2,11 +2,15 @@ import express from "express";
 import checkauth from "../checkAuth.mjs";
 import { body, validationResult , matchedData } from "express-validator";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import crypto from "crypto";
 
 const algorithm = 'aes-256-cbc';
-const key = crypto.randomBytes(32); // 256-bit key
-const iv = crypto.randomBytes(16);  // 128-bit I
+const key = process.env.ENCRYPTION_KEY || ""; // 256-bit key
+const iv = process.env.ENCRYPTION_IV || ""; // 128-bit I
+
 const router = express.Router();
 
 router.post("/pay", checkauth, [
@@ -62,7 +66,7 @@ function encrypt(text){
     const cipher = crypto.createCipheriv(algorithm,key,iv);
     let encrypted = cipher.update(text,'utf8','hex');
     encrypted += cipher.final('hex');
-    return { iv: iv.toString('hex'), encryptedData:encrypted};
+    return encrypted;
 }
 
 export default router;

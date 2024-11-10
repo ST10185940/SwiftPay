@@ -1,15 +1,18 @@
 import express from "express";
 import db from "../db/conn.mjs";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import { ObjectId } from "mongodb";
 
-import argon2 from "argon2";
+import argon2id from "argon2";
 
 import crypto from "crypto";
 
 const algorithm = 'aes-256-cbc';
-const key = crypto.randomBytes(32); // 256-bit key
-const iv = crypto.randomBytes(16);  // 128-bit IV
+const key = process.env.ENCRYPTION_KEY || ""; // 256-bit key
+const iv = process.env.ENCRYPTION_IV || ""; // 128-bit I
 
 import jwt from "jsonwebtoken";
 
@@ -47,6 +50,7 @@ router.post("/register", [
     const sanitizedInput = matchedData(req);
 
     let fullname = sanitizedInput.fullname;
+    let username = sanitizedInput.username;
     let id_number = sanitizedInput.id_num;
     let account_number = sanitizedInput.account_number;
     let password = sanitizedInput.password;
@@ -68,13 +72,13 @@ router.post("/register", [
     if (validationErrors.length > 0) {
         return res.status(400).json({ errors: validationErrors });
     }else{
-        fullname = await argon2.hash(fullname);
-        password = await argon2.hash(password);
+        fullname = await argon2id.hash(fullname);
+        password = await argon2id.hash(password);
         id_number = encrypt(id_number);
-        account_number = encrypt(account_number);
+        account_number = await argon2id.hash(account_number);
 
         let newCustomer = {
-            fullname:fullname,
+            fullname: fullname,
             id_number: id_number,
             account_number: account_number,
             username: username,
@@ -93,27 +97,20 @@ function encrypt(text){
     return { iv: iv.toString('hex'), encryptedData:encrypted};
 }
 
-// Decrypt function to be used in get request for customer data
-// function decrypt(encryptedText, iv) {
-//     const decipher = crypto.createDecipheriv(algorithm, key, Buffer.from(iv, 'hex'));
-//     let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-//     decrypted += decipher.final('utf8');
-//     return decrypted;
-//   }
 
 //Login
 
 const jwtSecret = process.env.JWT_SECRET || "";
 
-router.post("login", bruteforce.prevent,[
+router.post("/login", bruteforce.prevent,[
     body('username').trim().escape(),
-    body('password').trim().escape()
+    body('account_number').trim().escape(),
+    body('password').trim().escape(),
+
 ] , async (req,res) => {
 
     const sanitizedInput = matchedData(req);
-
-    username = sanitizedInput.username;
-    password = sanitizedInput.password;
+    const { username, password, account_number } = sanitizedInput;
 
     try{
         const collection =  await db.collection("Customers");
@@ -123,7 +120,11 @@ router.post("login", bruteforce.prevent,[
             return res.status(401).send({message: "Authentication Failed"});
         }
 
-        const passwordMatch = await argon2.verify(customer.password , password)
+        if (!accNumRegex.test(account_number) || !IBAN.isValid(account_number)) {
+            validationErrors.push("Invalid Account Number. Account number should be between 5 - 34 characters and in a valid IBAN format.");
+        }
+
+        const passwordMatch = await argon2id.verify(customer.password , password)
         if(!passwordMatch){
             return res.status(401).send({message: "Authentication Failed"});
         }else{
@@ -133,7 +134,7 @@ router.post("login", bruteforce.prevent,[
             return res.status(200).json({message: "Authentication Successful" , token})
         }
     }catch(e){
-        console.log("Loging error:", e);
+        console.log("Login error:", e);
         res.status(500),json({message: "Login Failed"});
     }
 });
