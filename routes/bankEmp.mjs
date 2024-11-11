@@ -8,7 +8,7 @@ import argon2id from "argon2";
 import jwt from "jsonwebtoken";
 
 import ExpressBrute from "express-brute";
-import {body , matchedData, Result} from "express-validator";
+import {body , matchedData} from "express-validator";
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ router.post("/regiser",[
         let username = sanitizedInput.username;
         let password = sanitizedInput.password;
 
-        hashedPassword = await argon2id.hash(password);
+        const hashedPassword = await argon2id.hash(password);
 
         const newEmp = {
             username : username,
@@ -41,11 +41,11 @@ router.post("/regiser",[
         }
         try{
             const collection =  await db.collection("bankEmp");
-            result = await collection.insertOne(newEmp);
+            const result = await collection.insertOne(newEmp);
             res.send(result).status(201);
         }catch(e){
             console.log("Emp creation error:", e);
-            res.status(500),json({message: "Bank Emp registration Failed"});
+            res.status(500).json({message: "Bank Emp registration Failed"});
         }
 });
 
@@ -83,7 +83,7 @@ router.post("/login", bruteforce.prevent,[
         }
     }catch(e){
         console.log("Loging error:", e);
-        res.status(500),json({message: "Login Failed"});
+        res.status(500).json({message: "Login Failed"});
     }
 });
 
@@ -145,7 +145,7 @@ router.post("/verify", checkauth ,[
 
     const sanitizedInput = matchedData(req);
 
-    transactionId = sanitizedInput.transactionId;
+     const transactionId = sanitizedInput.transactionId;
 
     try{
         const transactionCollection = await db.collection("Transactions");

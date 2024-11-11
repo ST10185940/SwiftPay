@@ -13,6 +13,6 @@ try{
 }catch(e){
     console.log(e);
 }
-let db = client.db('SwiftPay');
+const db = client.db('SwiftPay');
 
 export default db;

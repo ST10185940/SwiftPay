@@ -4,8 +4,6 @@ import db from "../db/conn.mjs";
 import dotenv from "dotenv";
 dotenv.config();
 
-import { ObjectId } from "mongodb";
-
 import argon2id from "argon2";
 
 import crypto from "crypto";
@@ -23,16 +21,14 @@ import IBAN from "iban";
 
 const router = express.Router();
 
-var store = new ExpressBrute.MemoryStore();
-var bruteforce = new ExpressBrute(store);
+const store = new ExpressBrute.MemoryStore();
+const bruteforce = new ExpressBrute(store);
 
 //register
 
 const nameRegex = /^[a-zA-Z '-]+$/;
 const idRegex = /^[0-9]{8,17}$/;
 const accNumRegex = /^[A-Z]{0,2}(?![0-9]{0,3}$)([A-Z0-9 -]{5,34})$/;
-
-
 
 router.post("/register", [
     body('fullname').trim().escape(),
@@ -136,7 +132,7 @@ router.post("/login", bruteforce.prevent,[
         }
     }catch(e){
         console.log("Login error:", e);
-        res.status(500),json({message: "Login Failed"});
+        res.status(500).json({message: "Login Failed"});
     }
 });
 

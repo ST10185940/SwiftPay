@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import crypto from "crypto";
-import { log } from "console";
 
 const algorithm = 'aes-256-cbc';
 const key = process.env.ENCRYPTION_KEY || ""; // 256-bit key
