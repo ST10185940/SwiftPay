@@ -4,7 +4,7 @@ import db from "../db/conn.mjs";
 import dotenv from "dotenv";
 dotenv.config();
 
-import argon2 from "argon2";
+import argon2id from "argon2";
 import jwt from "jsonwebtoken";
 
 import ExpressBrute from "express-brute";
@@ -22,6 +22,33 @@ const algorithm = 'aes-256-cbc';
 const key = process.env.ENCRYPTION_KEY || ""; // 256-bit key
 const iv = process.env.ENCRYPTION_IV || ""; // 128-bit I
 
+
+//pre- register for testing not made avaiable for final UI 
+
+router.post("/regiser",[ 
+    body('username').trim().escape(),
+    body('password').trim().escape()] ,
+    async (req,res) =>{
+        const sanitizedInput = matchedData(req);
+        let username = sanitizedInput.username;
+        let password = sanitizedInput.password;
+
+        hashedPassword = await argon2id.hash(password);
+
+        const newEmp = {
+            username : username,
+            password : hashedPassword
+        }
+        try{
+            const collection =  await db.collection("bankEmp");
+            result = await collection.insertOne(newEmp);
+            res.send(result).status(201);
+        }catch(e){
+            console.log("Emp creation error:", e);
+            res.status(500),json({message: "Bank Emp registration Failed"});
+        }
+});
+
 //Login
 
 const jwtSecret = process.env.JWT_SECRET || "";
@@ -33,8 +60,8 @@ router.post("/login", bruteforce.prevent,[
 
     const sanitizedInput = matchedData(req);
 
-    username = sanitizedInput.username;
-    password = sanitizedInput.password;
+   const username = sanitizedInput.username;
+   const password = sanitizedInput.password;
 
     try{
         const collection =  await db.collection("bankEmp");
@@ -44,14 +71,15 @@ router.post("/login", bruteforce.prevent,[
             return res.status(401).send({message: "Authentication Failed"});
         }
 
-        const passwordMatch = await argon2.verify(emp.password , password)
+        const passwordMatch = await argon2id.verify(emp.password , password)
         if(!passwordMatch){
             return res.status(401).send({message: "Authentication Failed"});
         }else{
             const token = jwt.sign({
                 username: username
-            }, jwtSecret, {expiresIn: "15m"});
-            return res.status(200).json({message: "Authentication Successful" , token})
+            }, jwtSecret, {expiresIn: "4h"});
+            return res.status(200).json({message: "Successful" , token:token});
+            
         }
     }catch(e){
         console.log("Loging error:", e);
@@ -59,14 +87,13 @@ router.post("/login", bruteforce.prevent,[
     }
 });
 
-
 //get pending trnasactions
 
-router.post("/transactions", checkauth , async (req,res) =>{
+router.get("/transactions", checkauth , async (req,res) =>{
    try{
 
         const collection = await db.collection("Transactions");
-        const transactions = await collection.find({}).toArray();
+        const transactions = await collection.find({swift_verified: false}).toArray();
 
         if (!transactions.length) {
             return res.status(200).send({ data: [], message: 'No transactions found' });
@@ -79,7 +106,7 @@ router.post("/transactions", checkauth , async (req,res) =>{
         console.log('Fecthing error:' ,error);
         res.status(500).send({error: 'failed to get pending transactions'})
    }
-})
+});
 
 async function decryptTransactions(transactions) {
     try{
@@ -108,7 +135,6 @@ function decrypt(encryptedText) {
         console.log('Decryption error:' , error);
         return null;
    }
-
 }
 
 // Verify and Forward Transaction

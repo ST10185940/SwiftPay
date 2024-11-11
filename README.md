@@ -16,7 +16,7 @@ This server-side implementation is part of a POE Project for APDS7311, specifica
 
 ## API Endpoints
 
-* `/customer/register`: Registers a new customer
+* `/customer/*`: Handles customer registration and logins
 * `/transaction/*`: Handles transaction-related operations
 * `/bankEmp/*`: Handles bank employee operations
 
@@ -25,7 +25,7 @@ This server-side implementation is part of a POE Project for APDS7311, specifica
 * Node.js
 * Express.js
 * MongoDB
-* Argon2
+* Argon2id
 * AES-256-CBC
 * JSON Web Tokens (JWT)
 * Express Brute
@@ -53,4 +53,3 @@ To set up and run the SwiftPay server, follow these steps:
 6. **Environment Variables**: Set the required environment variables, such as `JWT_SECRET`, before running the server in production.
 7. **Database Connection**: Ensure that MongoDB is installed and running on your system. Configure the MongoDB connection settings in the server code to match your MongoDB setup.
 8. **Troubleshooting**: Refer to the server logs for error messages and debugging information if you encounter any issues during setup or runtime.
-

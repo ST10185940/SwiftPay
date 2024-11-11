@@ -5,7 +5,11 @@
   "scripts": {
     "start": "node server",
     "dev": "nodemon server.mjs",
-    "test": "echo 'Running tests...'"
+    "test": "jest --coverage"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage"
   },
   "keywords": [],
   "author": "",

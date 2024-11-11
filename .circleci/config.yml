@@ -1,9 +1,12 @@
 version: 2.1
+
+orbs:
+  sonarqube: sonarsource/sonarqube@1.1.1
+
 jobs:
   build-and-test:
     docker:
-      - image: circleci/node:latest
-
+      - image: cimg/node:18.12
     steps:
       - checkout
       - restore_cache:
@@ -14,11 +17,23 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package-lock.json" }}
-      - run: npm run test
       - run: npm run dev
+      - sonarqube/scan:
+          sonar-project-properties-json: |
+            {
+              "sonar.organization": "st10185940",
+              "sonar.projectKey": "st10185940",
+              "sonar.sources": ".",
+              "sonar.host.url": "https://sonarcloud.io",
+              "sonar.exclusions": "**/node_modules/**,**/build/**,**/dist/**,**/*.test.js",
+              "sonar.tests": ".",
+              "sonar.test.inclusions": "**/*.test.js,**/*.spec.js",
+              "sonar.javascript.lcov.reportPaths": "coverage/lcov.info",
+              "sonar.sourceEncoding": "UTF-8"
+            }
 
 workflows:
-  version: 2.1
-  build-and-test:
+  version: 2
+  build-test-analyze:
     jobs:
       - build-and-test

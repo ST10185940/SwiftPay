@@ -86,7 +86,8 @@ router.post("/register", [
         };
         let collection = await db.collection("Customers");
         let result = await collection.insertOne(newCustomer);
-        res.send(result).status(201);
+        if(result) res.status(201).json({message: 'Success'});
+        console.log("Created user")
     }
 });
 
@@ -130,8 +131,8 @@ router.post("/login", bruteforce.prevent,[
         }else{
             const token = jwt.sign({
                 username: username
-            }, jwtSecret, {expiresIn: "15m"});
-            return res.status(200).json({message: "Authentication Successful" , token})
+            }, jwtSecret, {expiresIn: "30m"});
+            return res.status(200).json({message: "Successful" , token: token})
         }
     }catch(e){
         console.log("Login error:", e);

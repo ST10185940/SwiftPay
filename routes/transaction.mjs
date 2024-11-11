@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import crypto from "crypto";
+import { log } from "console";
 
 const algorithm = 'aes-256-cbc';
 const key = process.env.ENCRYPTION_KEY || ""; // 256-bit key
@@ -16,7 +17,6 @@ const router = express.Router();
 router.post("/pay", checkauth, [
     body('amount').isNumeric(),
     body('currency').trim().escape(),
-    body('provider').trim().escape(),
     body('accountNumber').trim().escape(),
     body('swiftCode').trim().escape()
 ], async (req, res) => {
@@ -28,7 +28,6 @@ router.post("/pay", checkauth, [
     const sanitizedInput = matchedData(req);
     const amount = sanitizedInput.amount;
     const currency = sanitizedInput.currency;
-    const provider = sanitizedInput.provider;
     const accountNumber = sanitizedInput.accountNumber;
     const swiftCode = sanitizedInput.swiftCode;
 
@@ -48,14 +47,16 @@ router.post("/pay", checkauth, [
     let transaction = new Transaction({
         amount,
         currency,
-        provider,
-        accountNumber: encryptedAccountNumber,
-        swiftCode: encryptedSwiftCode
+        provider: "SWIFT",
+        account_number: encryptedAccountNumber,
+        swiftCode: encryptedSwiftCode,
+        swift_verified: false
     });
     try {
         const collection = await db.collection("Transactions");
         const result = await collection.insertOne(transaction);
-        res.status(201).send(result);
+        console.log("transaction created", json(result));
+        res.status(201);
     } catch (error) {
         console.error("Error inserting transaction:", error);
         res.status(500).send({ message: "Internal Server Error" });
