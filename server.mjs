@@ -7,6 +7,7 @@ import transaction  from "./routes/transaction.mjs";
 import bankEmp from "./routes/bankEmp.mjs" 
 
 import express from "express"; // Importing Express.js for web application framework
+import bodyParser from 'body-parser';
 import cors from "cors"; // Importing CORS for cross-origin resource sharing
 
 // Importing security modules for HTTP headers, rate limiting, and slowing down
@@ -47,8 +48,9 @@ const speedLimiter = slowDown({
 app.use(helmet({
     contentSecurityPolicy:{
         directives:{
-            "default-script":['"self"'],
-            "script-src": ["'self'"]
+            "default-script":["'self'"],
+            "script-src": ["'self'"],  // Allow scripts from both the current origin and the backend
+            "connect-src": ["'self'"]
         },
         frameguard: {
             action: "deny"
@@ -65,7 +67,12 @@ app.use(speedLimiter);
 app.use(expressSSL.HTTPS());
 
 // enables CORS for cross-origin requests
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000' 
+}));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Mounting routes for customer, transaction, and bank employee operations
 app.use("/customer", customer);

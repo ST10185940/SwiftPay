@@ -1,6 +1,9 @@
 import express from "express";
 import db from "../db/conn.mjs";
 
+
+import { ObjectId } from "mongodb";
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -22,10 +25,9 @@ const algorithm = 'aes-256-cbc';
 const key = process.env.ENCRYPTION_KEY || ""; // 256-bit key
 const iv = process.env.ENCRYPTION_IV || ""; // 128-bit I
 
-
 //pre- register for testing not made avaiable for final UI 
 
-router.post("/regiser",[ 
+router.post("/register",[ 
     body('username').trim().escape(),
     body('password').trim().escape()] ,
     async (req,res) =>{
@@ -33,16 +35,24 @@ router.post("/regiser",[
         let username = sanitizedInput.username;
         let password = sanitizedInput.password;
 
-        const hashedPassword = await argon2id.hash(password);
+        const hashedPassword = await argon2id.hash(req.body.password);
 
         const newEmp = {
-            username : username,
+            username : req.body.username,
             password : hashedPassword
         }
+
+        console.log(newEmp); 
+
         try{
             const collection =  await db.collection("bankEmp");
             const result = await collection.insertOne(newEmp);
-            res.send(result).status(201);
+            if (result.acknowledged) {
+                res.status(201).send({ message: "Employee registered successfully", empId: result.insertedId });
+            } else {
+                res.status(500).send({ message: "Failed to create employee" });
+            }
+           
         }catch(e){
             console.log("Emp creation error:", e);
             res.status(500).json({message: "Bank Emp registration Failed"});
