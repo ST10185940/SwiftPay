@@ -9,10 +9,9 @@
     padding: 1rem;
   }
   
-  .logo {
-    color: #2563eb;
-    font-weight: bold;
-    font-size: 1.5rem;
+  img {
+      height: 200px;
+      border-radius: 50px;
   }
   
   .main-content {

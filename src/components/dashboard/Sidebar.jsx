@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from './swiftpay-high-resolution-logo.png';
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -7,7 +8,7 @@ function Sidebar() {
   return (
     <div className="sidebar">
       <div className="logo">
-        <h1>LOGO</h1>
+       <img src={logo} alt='swiftpay logo' className="logo" style={{height : 150}}></img>
       </div>
       
       <nav className="nav-menu">

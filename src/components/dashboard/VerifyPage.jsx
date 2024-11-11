@@ -19,7 +19,6 @@ function VerifyPage() {
         setTransactions(transactions.data);
    }
     getTransactions();
-    return;
   }, []);
 
   async function Verify(id){

@@ -1,6 +1,7 @@
 // LoginPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../swiftpay-high-resolution-logo.png';
 import './LoginPage.css';
 
 function LoginPage() {
@@ -12,48 +13,46 @@ function LoginPage() {
 
   const navigate = useNavigate();
 
-  const form = useState({
-    username: "",
-    password: ""
-  });
-
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const newLogin = {...form};
+    // Creating the newLogin object from state values
+    const newLogin = { username, password };
 
-    const rsp = await fetch("https://localhost:3001/bankEmp/login/",{
+    try {
+      const response = await fetch("https://localhost:3001/bankEmp/login/", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newLogin)
-    })
-    .catch(error =>{
-        window.alert(error);
-        return;
-    });
+      });
 
-    if (rsp.message === "Successful") {
-      setIsSuccess(true);
-      setMessage('Login successful! Loading Workspace...');
+      const rsp = await response.json();
 
-      const token = rsp.token;
-      sessionStorage.setItem('token', token);
+      if (response.ok && rsp.message === "Successful") {
+        setIsSuccess(true);
+        setMessage('Login successful! Loading Workspace...');
 
-      navigate('/dashboard/verify');
-      setTimeout(() => {
-        window.location.href = '/';  
-      }, 2000);
-    } else {
+        const token = rsp.token;
+        sessionStorage.setItem('token', token);
+
+        // Navigate to the verification page
+        navigate('/dashboard/verify');
+        setTimeout(() => navigate('/'), 2000); 
+      } else {
+        setIsSuccess(false);
+        setMessage(rsp.message || "Login failed. Please try again.");
+      }
+    } catch (error) {
       setIsSuccess(false);
-      setMessage(rsp.message);
+      setMessage("An error occurred. Please try again.");
     }
-  };
+  }
 
   return (
     <div className="login-container">
       {/* Logo */}
       <div className="logo-container">
-        <h1 className="logo">LOGO</h1>
+        <img src={logo} alt='swiftpay logo' className="logo"></img>     
       </div>
 
       {/* Main content */}
